@@ -1,0 +1,52 @@
+housing_type
+"options": [
+    {
+        "id": 27,
+        "label": "Enebolig (33)"
+    },
+    {
+        "id": 28,
+        "label": "Leilighet (34)"
+    },
+    {
+        "id": 29,
+        "label": "Tomannsbolig (35)"
+    },
+    {
+        "id": 30,
+        "label": "Rekkehus (36)"
+    },
+    {
+        "id": 31,
+        "label": "Hytte (37)"
+    },
+    {
+        "id": 32,
+        "label": "Annet (38)"
+    }
+]
+
+deal_type
+
+"options": [
+    {
+        "id": 33,
+        "label": "aktuelle (39)"
+    },
+    {
+        "id": 34,
+        "label": "Fastpris (40)"
+    },
+    {
+        "id": 35,
+        "label": "Spotpris (41)"
+    },
+    {
+        "id": 36,
+        "label": "Kraftforvaltning (42)"
+    },
+    {
+        "id": 37,
+        "label": "Annen avtale/vet ikke (43)"
+    }
+]
