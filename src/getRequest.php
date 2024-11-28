@@ -9,7 +9,6 @@ function getRequest($address, $field, $searchTerm) {
     $encodedTerm = urlencode($searchTerm); // Encoder search-term for å kunne bruke spesial-karakterar i søket
     $searchUrl = $address . '&term=' . $encodedTerm . '&fields=' . $field; //Lager fullstendig søk-adresse
 
-
     $ch = curl_init($searchUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Hindre at curl skriv ut outputten
     $response = curl_exec($ch); // Execute the request

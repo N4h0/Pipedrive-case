@@ -11,7 +11,7 @@ $dotenv->load(); //Henter lokale variablar (API_KEY). Denne blir brukt i postReq
 $leadurl = 'https://api.pipedrive.com/v1/leads';  //API for å legge til leads
 $personurl = 'https://api.pipedrive.com/v1/persons'; //API for å legge til personar
 $organizationurl = 'https://api.pipedrive.com/v1/organizations'; //API for å legge til organisasjonar
-$input_data = include('../exampledata.php'); //Henter eksempeldataen.
+$input_data = include('../exampledata3.php'); //Henter eksempeldataen.
 
 //Array med informasjon eg set som obligatorisk. I ein reel situasjon ville eg ha sjekka opp nøyare kva informasjon som faktisk er obligatorisk
 //Alle input-felt de har gitt er her obligatoriske med unntak av comment. 
@@ -27,46 +27,50 @@ $required_information = [
 
 //Data for å konvertere valg til tal for å passe til korrekt Id. 
 $housingTypeMapping = [
-    'Enebolig' => 33,
-    'Leilighet' => 34,
-    'Tomannsbolig' => 35,
-    'Rekkehus' => 36,
-    'Hytte' => 37,
-    'Annet' => 38
+    'enebolig' => 33,
+    'leilighet' => 34,
+    'tomannsbolig' => 35,
+    'rekkehus' => 36,
+    'hytte' => 37,
+    'annet' => 38
 ];
 
 $dealTypeMapping = [
-    'Alle strømavtaler er aktuelle' => 39,
-    'Fastpris' => 40,
-    'Spotpris' => 41,
-    'Kraftforvaltning' => 42,
-    'Annen avtale/vet ikke' => 43
+    'alle strømavtaler er aktuelle' => 39,
+    'fastpris' => 40,
+    'spotpris' => 41,
+    'kraftforvaltning' => 42,
+    'annen avtale/vet ikke' => 43
 ];
 
 $contactTypeMapping = [
-    'Privat' => 30,
-    'Borettslag' => 31,
-    'Bedrift' => 32
+    'privat' => 30,
+    'borettslag' => 31,
+    'bedrift' => 32
 ];
 
 //Try-catch blokker for å konvertere housing type, deal type og contact type til ID for å kunne bruke den i pipedrive. 
+//Case-insensitive
 try {
-    $housingTypeValue = $housingTypeMapping[$input_data['housing_type']];
+    $housingTypeValue = $housingTypeMapping[strtolower($input_data['housing_type'])];
 } catch (Exception $e) {
     echo "Error: Invalid housing_type value.";
+    echo "Housing type must be either Enebolig, Leilighet, Tomannsbolig, Rekkehus, Hytte or Annet";
     return false;
 }
 
 try {
-    $dealTypeValue = $dealTypeMapping[$input_data['deal_type']];
+    $dealTypeValue = $dealTypeMapping[strtolower($input_data['deal_type'])];
 } catch (Exception $e) {
     echo "Error: Invalid deal_type value.";
+    echo "Deal type type must be either aktuelle, Fastpris, Spotpris, Kraftforvaltning or Annen avtale/vet ikke";
     return false;
 }
 try {
-    $contactTypeValue = $contactTypeMapping[$input_data['contact_type']];
+    $contactTypeValue = $contactTypeMapping[strtolower($input_data['contact_type'])];
 } catch (Exception $e) {
     echo "Error: Invalid contact_type value.";
+    echo "Contact type type must be either Privat, Borettslag or Bedrift";
     return false;
 }
 
@@ -86,7 +90,7 @@ foreach ($required_information as $field) {
 
 //Oppretter person, organisasjon og lead som skal bli sendt til pipedrive
 $organization = [
-    "name" => "Johan Tryti sin organisasjon", //Enkel statisk verdi som organisasjonsnavn. 
+    "name" => "Johan Tryti sin organisasjon", //Til denne casen bruker eg berre same organisasjon overalt. 
 ];
 
 $person = [
@@ -104,22 +108,19 @@ $lead = [
     "ad0c0c5d6d5b85d6ce81777139e55f5155d4bd2e" => $dealTypeValue, //deal type
 ];
 
-$organizationresponse = getRequest($organizationurl, "name", $organization["name"]);
-$personresponse = getRequest($personurl, "name", $input_data['name']);
-$leadresponse = getRequest($leadurl, "title", $lead['title']);
-
-
+$leadresponse = getRequest($leadurl, "title", $lead['title']); //Køyrer lead-getRequest fyrst sidan eg stopper programmet om det fins duplikat
 if (!empty($leadresponse['data']['items'])) {
     $leadcount = count($leadresponse['data']['items']);
     echo "Error: " . $leadcount . " duplicate(s) of lead with name: \"" . $lead["title"] . "\" already existing in pipedrive. Creation of duplicate leads not allowed.";
     return false;
 }
+$organizationresponse = getRequest($organizationurl, "name", $organization["name"]); //Get request for å sjekke om det er organisasjon-duplikat
 if (!empty($organizationresponse['data']['items'])) {
     $lead['organization_id']  = $organizationresponse['data']['items'][0]['item']['id'];
     $person['org_id'] = $organizationresponse['data']['items'][0]['item']['id'];
     echo "Organization already existing, linking lead and person with existing organization.";
 }
-else { //Hvis get ikkje eksisterer organisasjoner med gitt navn lager me ein ny organisasjon og henter iden til denne
+else { //Hvis get ikkje eksisterer organisasjoner med gitt navn lager me ein ny organisasjon og henter id-en til denne for å bruke til person og lead. Gir ei åtvaring om det fins meir enn 1 duplikat. 
     $result = postRequest($organizationurl, $organization);
     echo "<br>";
     if ($result['success']) {
@@ -132,11 +133,12 @@ else { //Hvis get ikkje eksisterer organisasjoner med gitt navn lager me ein ny 
     $lead['organization_id'] = $result['data']['id'];
     $person['org_id'] = $result['data']['id'];
 }
+$personresponse = getRequest($personurl, "name", $input_data['name']); //Get request for å sjekke om det er person-duplikat. 
 if (!empty($personresponse['data']['items'])) {
     $lead['person_id']  = $personresponse['data']['items'][0]['item']['id'];
     echo "Person already existing, linking lead with existing person.";    
 }
-else {
+else { //Om person fins linkar eg lead med den eksisterande personen. Gir ei åtvaring om det fins meir enn 1 duplikat. 
     $result = postRequest($personurl, $person);
     if ($result['success']) {
         echo '<br>person created successfully!';
