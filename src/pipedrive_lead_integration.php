@@ -8,11 +8,11 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..'); //Må spesifisere at .env ligg i nivået over. 
 $dotenv->load(); //Henter lokale variablar (API_KEY). Denne blir brukt i postRequest.php og getRequest.php
 
-$testdata1 = include('../testdata/exampledata1.php'); //Komplett eksempeldata lagt ved oppgåva.
-$testdata2 = include('../testdata/exampledata2.php'); //Eksempeldata der "name" manglar.
-$testdata3 = include('../testdata/exampledata3.php'); //Komplett eksempeldata som er unik frå det fyrste eksempelet
-$testdata4 = include('../testdata/exampledata4.php'); //Eksempeldata der deal_type og contact_type manglar
-$testdata5 = include('../testdata/exampledata5.php'); //Eksempeldata med samme person som 1, men anna leadtitle
+$testdata1 = include('../testdata/eksempeldata.php'); //Komplett eksempeldata lagt ved oppgåva, med name som Johan Tryti.
+$testdata2 = include('../testdata/missingName.php'); //Eksempeldata der "name" manglar.
+$testdata3 = include('../testdata/eksempeldata2.php'); //Komplett eksempeldata som er unik frå det fyrste eksempelet
+$testdata4 = include('../testdata/MissingContactDealType.php'); //Eksempeldata der deal_type og contact_type manglar
+$testdata5 = include('../testdata/eksempeldataDifferentLead.php'); //Eksempeldata med samme person som 1, men anna leadtitle
 addLeadToPipedrive($testdata5);
 
 function logMessage($infomasjon) //Funksjon for å logge. 
@@ -168,7 +168,7 @@ function addLeadToPipedrive($input_data)
         $result = postRequest($personurl, $person);
         if ($result['success']) {
             logMessage("Info: Person created successfully with ID: " . $result['data']['id']);
-            echo '<br>person created successfully!';
+            echo '<br>Person created successfully!';
         } else {
             logMessage("Error: Failed to create person. " . $result['error'] . " " . $result['error_info']);
             throw new Exception('<br><br>Failed to create person: ' . $result['error'] . " " . $result['error_info']);
