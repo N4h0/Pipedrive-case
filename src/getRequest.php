@@ -16,6 +16,7 @@ function getRequest($address, $field, $searchTerm) {
 
     if ($response === false) {
         logMessage("Error: GET request failed: " . curl_error($ch));
+        throw new Exception("Error: GET request failed: " . curl_error($ch));
     } else {
         logMessage("Info: GET request completed successfully.");
     }

@@ -17,6 +17,7 @@ function postRequest($adress, $data){
 
     if ($response === false) {
         logMessage("Error: POST request failed: " . curl_error($ch));
+        throw new Exception("Error: POST request failed: " . curl_error($ch));
     } else {
         logMessage("Info: POST request completed successfully.");
     }

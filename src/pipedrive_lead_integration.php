@@ -3,6 +3,7 @@ require __DIR__ . '/../vendor/autoload.php'; //Brukt for å bruke lokale variabl
 //Henter eigenlagde funksjonar
 require __DIR__ . '/postRequest.php'; //postRequest blir brukt for å sende alle post-requests. 
 require __DIR__ . '/getRequest.php'; //getRequest blir brukt for å sende alle get-requests. 
+
 use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..'); //Må spesifisere at .env ligg i nivået over. 
