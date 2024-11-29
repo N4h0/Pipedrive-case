@@ -4,3 +4,6 @@
 #Logs Har gitkeep-fila for å la meg commite den tomme folderen. 
 logs/*
 !logs/gitkeep
+
+#Vendor
+/vendor/
