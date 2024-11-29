@@ -14,7 +14,7 @@ $testdata2 = include('../testdata/missingName.php'); //Eksempeldata der "name" m
 $testdata3 = include('../testdata/eksempeldata2.php'); //Komplett eksempeldata som er unik frå det fyrste eksempelet
 $testdata4 = include('../testdata/MissingContactDealType.php'); //Eksempeldata der deal_type og contact_type manglar
 $testdata5 = include('../testdata/eksempeldataDifferentLead.php'); //Eksempeldata med samme person som 1, men anna leadtitle
-addLeadToPipedrive($testdata);
+addLeadToPipedrive($testdata1);
 
 function logMessage($infomasjon) //Funksjon for å logge. 
 {
@@ -26,8 +26,8 @@ function addLeadToPipedrive($input_data)
     $leadurl = 'https://api.pipedrive.com/v1/leads';  //Starten på API for å legge til leads
     $personurl = 'https://api.pipedrive.com/v1/persons'; //Starten på API for å legge til personar
     $organizationurl = 'https://api.pipedrive.com/v1/organizations'; //Starten på API for å legge til organisasjonar
-    //enkel funksjon eg bruker for all logging
 
+    //Ny linje mellom kvar gong scriptet blir køyrt. 
     error_log("\n\n", 3, __DIR__ . '/../logs/log.txt');
     logMessage("Info: Running src\pipedrive_lead_integration.php to add lead to pipedrive.");
 
@@ -100,11 +100,6 @@ function addLeadToPipedrive($input_data)
         return false;
     }
 
-    #Kode for å køyre på min pipedrive-konto for å få rett samanheng mellom idane til dykkar og mine options (Må slette):
-    $housingTypeValue -= 6; //Housing type
-    $dealTypeValue -= 6; //Deal type
-    $contactTypeValue += 8; //Contact type
-
     //Oppretter person, organisasjon og lead som skal bli sendt til pipedrive
     $organization = [
         "name" => "Johan Tryti sin organisasjon", //Til denne casen bruker eg berre same organisasjon overalt. 
@@ -114,15 +109,15 @@ function addLeadToPipedrive($input_data)
         "name" => $input_data['name'],
         "phone" => $input_data['phone'],
         "email" => $input_data['email'],
-        "fac468a2757b9bac40bef3d33c67f6e190f80b55" =>  $contactTypeValue, // contact type
+        "fd460d099264059d975249b20e071e05392f329d" =>  $contactTypeValue, // contact type
     ];
 
     $lead = [
         "title" => $input_data['name'] . " | " . $input_data['deal_type'] . " | " . $input_data['contact_type'], //Lager lead-tittel basert på data. Ville i ein reel case sjekka med kunde kva lead-tittel dei ønska og ikkje antatt.
-        "bfd7de6d20fd153c450e6a9fa9e687846a9fcb84" => $housingTypeValue, //Housing type
-        "3803e2afd28dcf016b749abefce02952f63afb76" => $input_data['property_size'], //Property size
-        "9ae06060d6cc0e797c5a5235e58e4d41afeace0b" => $input_data['comment'], //Comment
-        "ad0c0c5d6d5b85d6ce81777139e55f5155d4bd2e" => $dealTypeValue, //deal type
+        "9cbbad3c5d83d6d258ef27db4d3784b5e0d5fd32" => $housingTypeValue, //Housing type
+        "7a275c324d7fbe5ab62c9f05bfbe87dad3acc3ba" => $input_data['property_size'], //Property size
+        "479370d7514958b2b4b4049c37be492f357fe7d8" => $input_data['comment'], //Comment
+        "cebe4ad7ce36c3508c3722b6e0072c6de5250586" => $dealTypeValue, //deal type
     ];
 
     $leadresponse = getRequest($leadurl, "title", $lead['title']); //Køyrer lead-getRequest fyrst sidan eg stopper programmet om det fins duplikat
