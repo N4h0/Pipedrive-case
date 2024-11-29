@@ -14,7 +14,7 @@ $testdata2 = include('../testdata/missingName.php'); //Eksempeldata der "name" m
 $testdata3 = include('../testdata/eksempeldata2.php'); //Komplett eksempeldata som er unik frå det fyrste eksempelet
 $testdata4 = include('../testdata/MissingContactDealType.php'); //Eksempeldata der deal_type og contact_type manglar
 $testdata5 = include('../testdata/eksempeldataDifferentLead.php'); //Eksempeldata med samme person som 1, men anna leadtitle
-addLeadToPipedrive($testdata5);
+addLeadToPipedrive($testdata);
 
 function logMessage($infomasjon) //Funksjon for å logge. 
 {
@@ -23,9 +23,9 @@ function logMessage($infomasjon) //Funksjon for å logge.
 
 function addLeadToPipedrive($input_data)
 {
-    $leadurl = 'https://api.pipedrive.com/v1/leads';  //API for å legge til leads
-    $personurl = 'https://api.pipedrive.com/v1/persons'; //API for å legge til personar
-    $organizationurl = 'https://api.pipedrive.com/v1/organizations'; //API for å legge til organisasjonar
+    $leadurl = 'https://api.pipedrive.com/v1/leads';  //Starten på API for å legge til leads
+    $personurl = 'https://api.pipedrive.com/v1/persons'; //Starten på API for å legge til personar
+    $organizationurl = 'https://api.pipedrive.com/v1/organizations'; //Starten på API for å legge til organisasjonar
     //enkel funksjon eg bruker for all logging
 
     error_log("\n\n", 3, __DIR__ . '/../logs/log.txt');
@@ -177,7 +177,7 @@ function addLeadToPipedrive($input_data)
         $lead['person_id'] = $result['data']['id'];
     }
 
-    $result = postRequest($leadurl, $lead);
+    $result = postRequest($leadurl, $lead); //POST_request for å last opp lead. 
 
     if ($result['success']) {
         logMessage("Info: Lead created successfully with ID: " . $result['data']['id']);

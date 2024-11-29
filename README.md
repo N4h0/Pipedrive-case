@@ -1,40 +1,82 @@
-# Pipedrive-case
+# Oppsummering
 
-Dette er eit script som laster opp leads til pipedrive via API med og koblar desse opp mot personar og leads. I tillegg til standard felt har lead følgande felt obligatorisk: housing_type, property_size, comment og deal_type, og person krever feltet contact_type. Scriptet koblar leads opp mot eksisterande personar og organisasjonar om desse eksisterer, og opprettar nye organisasjonar og brukarar om dei ikkje blir funne. 
+Dette er eit script som laster opp leads til pipedrive og koblar desse opp mot personar og organisasjonar, eller laster personar og organisasjonar opp om dei ikkje eksisterer
 
-Installer PHP. Last ned CURL om den ikkje er lasta ned og aktiver den i php ved å endre php.ini-fila ved å fjerne ";" frå linja "extension=curl
-". Last ned curl-CA-sertifikatet og legg ein gyldig path til det i php.ini ved å endre linja ";curl.cainfo =" til "curl.cainfo = "pathToCertificate."
-Composer må vere installert.
+# Features
 
+- Legg til leads i pipedrive og link desse opp mot nye eller eksisterande personar og leads.
+- Duplikat av leads i pipedrive er ikkje lovlig.
+- Ved duplikat av person eller organisasjon som allereie fins i pipedrive blir den eksisterande personen og organisasjonen linka til.
+- Logging.
 
-Remove-Item -Recurse -Force .\vendor
+# Dependencies
 
-composer install
-
-
-Finn iden til custom fields som er lagt til. Dette kan du feks gjere ved bruk av PostMan, ved å følge denne tutorialen: https://pipedrive.readme.io/docs/run-pipedrive-api-in-postman-or-insomnia. Deretter kan du køyre {{baseUrl}}/leadFields for å finne iden til dei ulike vala til informajsonen, sidan iden ikkje kjem opp utan vidare.
-
-Antek her at ideen er talet de har sett opp i parantes for dei ulike vala. 
-
-guzzlehttp/guzzle
-curl
-
-last ned og pass på at du har nyaste oppdaterte Mozilla CA certificate. Definer kvar det ligg ved å finne linja "curl.cainfo" i php.init i din nedlasta versjon av curl, og 
-fjern ";" og endren den til "curl.cainfo ="pathtoyourMozilla_CA_certificate"".
-
-https://github.com/vlucas/phpdotenv
+- PHP
+- Curl
+- Composer
+- Vendor
+- Openssl
+- I tillegg må [Mozilla CA Certificate](https://curl.se/docs/caextract.html) til curl vere lasta ned og korrekt linka til i php.ini.
+.
 
 
-Vanlige feilmeldinger: 
-Warning: require(PATH\integration_project\vendor\composer/../symfony/polyfill-ctype/bootstrap.php): Failed to open stream: No such file or directory in PATH\integration_project\vendor\composer\autoload_real.php on line 41
+# Køyre scriptet
+1. **Køyr `composer install`** for å laste ned nødvendige pakker (Vendor):
+   ```bash
+   composer install
+2. Legg til ei .env-fil og legg til API-nøkkelen til pipedrive med formatet "Pipedrive_API_TOKEN="DINAPINØKKELHER""
+3. Deretter er det berre å køyre scriptet i pipedrive_lead_integration. For å endre kva data som blir sendt kan du endre testdata i linje 17.
 
-og 
+# Testdata
 
-Undefined type 'Dotenv\Dotenv'.
+Det er lagt ved 5 ulike testdata. Kva testdata som blir køyrt kan bli endra ved å endre linje 17: addLeadToPipedrive($testdata); Beskrivelse av dei ulike testdataene er lagt ved i linjene over. 
 
-Desse kan bli løyst ved å reinstallere .\Vendor. 
-På windows: Køyr 
-Remove-Item -Recurse -Force .\vendor
-så
-composer install
-For å fullstendig slette og reinstallere Vendor, som burde fikse feilen. 
+# Filstruktur
+
+### /logs
+- Ei tom mappe der log blir oppretta når scriptet køyrer.
+### /scripts
+- postRequest.php: Køyrer POST-requests opp mot serveren.
+- getRequest.php: Køyrer GET-requests opp mot serveren.
+- pipedrive_lead_integration.php: Hovudscript.
+### testdata
+- Inneheld testdata i .php-format.
+
+# Logging
+
+Alle GET og POST requests blir logga. Ingen sensitiv data eller API-nøklar blir logga. All logging er i formatet: "*dato*, *label:* *Informasjon*. Eksempel på fullstendig logg ved duplikat-lead:
+
+2024-11-29 10:16:20 Info: Running src\pipedrive_lead_integration.php to add lead to pipedrive. <br />
+2024-11-29 10:16:20 Info: Sending GET request to: https://api.pipedrive.com/v1/leads/search?api_token=THEAPETOKENINSERTERHERE&term=SEARCHTERMGOESHERE&fields=title <br />
+2024-11-29 10:16:21 Info: GET request completed successfully. <br />
+2024-11-29 10:16:21 Error: 1 duplicate(s) of lead already existing in pipedrive. Creation of duplicate leads not allowed.
+
+# Køyre scriptet på eigen pipedrive-konto
+
+Scriptet er hardkoda for å laste opp til ein spesifikk pipedrive-konto og api og id til dei ulike felta er hardkoda. For å kunne laste opp til din eigen konto må du legge til felta under i din pipedrive. I tillegg må du finne APIen til dei ulike felta og id til dei ulike valga (id til ulike val er ein int). Du må så endre dei hardkoda verdiane i pipedrive_lead_integration.php.  API og idear kan du feks finne ved å bruke postman og køyre GET {{baseUrl}}/leadFields, {{baseUrl}}/personFields og {{baseUrl}}/organizationFields, sjekk [Pipedrive API Documentation](https://pipedrive.readme.io/docs/run-pipedrive-api-in-postman-or-insomnia) for meir info. 
+
+### Lead Fields
+
+| Field Name     | Type           | Options                                     |
+|-----------------|----------------|---------------------------------------------|
+| Housing_type    | Single-Option | Enebolig                                    |
+|                 |                | Leilighet                                   |
+|                 |                | Tomannsbolig                                |
+|                 |                | Rekkehus                                    |
+|                 |                | Hytte                                       |
+|                 |                | Annet                                       |
+| property_size   | Integer (int) | -                                           |
+| comment         | Text          | -                                           |
+| deal_type       | Single-Option | aktuelle                                    |
+|                 |                | Fastpris                                    |
+|                 |                | Spotpris                                    |
+|                 |                | Kraftforvaltning                            |
+|                 |                | Annen avtale/vet ikke                      |
+
+### Person Fields
+
+| Field Name      | Type           | Options        |
+|------------------|----------------|----------------|
+| contact_type     | Single-Option | Privat         |
+|                  |                | Borettslag     |
+|                  |                | Bedrift        |
